@@ -154,21 +154,34 @@
         const installButton = document.getElementById('installButton');
         const dismissButton = document.getElementById('dismissButton');
 
-        // Detect browser
+        // Detect browser and device
         const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
                             window.navigator.standalone === true;
 
         console.log('Browser Detection:', {
             isFirefox: isFirefox,
+            isIOS: isIOS,
             isStandalone: isStandalone,
             userAgent: navigator.userAgent
         });
 
+        // Show install prompt for iOS users if not already installed
+        if (isIOS && !isStandalone) {
+            console.log('iOS detected - showing install instructions');
+            setTimeout(() => {
+                const promptText = installPrompt.querySelector('p');
+                if (promptText) {
+                    promptText.innerHTML = '📱 Install this app: Tap the Share button <svg style="display:inline;width:1em;height:1em;vertical-align:middle" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5l-1.42 1.42-1.59-1.59V16h-1.98V4.83L9.42 6.42 8 5l4-4 4 4zm4 5v11c0 1.1-.9 2-2 2H6c-1.1 0-2-.9-2-2V10c0-1.1.9-2 2-2h3v2H6v11h12V10h-3V8h3c1.1 0 2 .9 2 2z"/></svg> then "Add to Home Screen"';
+                    installPrompt.style.display = 'block';
+                    console.log('iOS install prompt displayed');
+                }
+            }, 2000);
+        }
         // Show install prompt for Firefox users if not already installed
-        if (isFirefox && !isStandalone) {
+        else if (isFirefox && !isStandalone) {
             console.log('Firefox detected');
-            // Firefox desktop has limited PWA support, show info after delay
             setTimeout(() => {
                 const promptText = installPrompt.querySelector('p');
                 if (promptText) {
@@ -178,7 +191,7 @@
                 }
             }, 2000);
         } else {
-            console.log('Not showing Firefox prompt:', { isFirefox, isStandalone });
+            console.log('Not showing custom prompt:', { isFirefox, isIOS, isStandalone });
         }
 
         window.addEventListener('beforeinstallprompt', (e) => {
@@ -195,6 +208,15 @@
                 console.log(`User response to install prompt: ${outcome}`);
                 deferredPrompt = null;
                 installPrompt.style.display = 'none';
+            } else if (isIOS) {
+                // Show iOS installation instructions
+                alert('Install on iPhone/iPad:\n\n' +
+                      '1. Tap the Share button (square with arrow) at the bottom of Safari\n' +
+                      '2. Scroll down and tap "Add to Home Screen"\n' +
+                      '3. Tap "Add" in the top right\n' +
+                      '4. The app icon will appear on your home screen!\n\n' +
+                      '✅ Works offline after installation\n' +
+                      '✅ Full calendar access without internet');
             } else if (isFirefox) {
                 // Show Firefox limitations
                 alert('Firefox Desktop PWA Support:\n\n' +
