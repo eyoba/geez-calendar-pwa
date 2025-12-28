@@ -1,6 +1,6 @@
 {
-  "name": "Eritrean Orthodox Geez Calendar - የግእዝ ዘመን",
-  "short_name": "Geez Calendar",
+  "name": "ግእዝ ዘመን ዓውደ ኣዋርሕ - Eritrean Orthodox Geez Calendar",
+  "short_name": "ግእዝ ዘመን",
   "description": "Eritrean Orthodox Geez Calendar with all holidays and fasting dates - Works offline",
   "start_url": "./",
   "scope": "./",
