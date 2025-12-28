@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ti">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Eritrean Orthodox Geez Calendar - የግእዝ ዘመን አቆጣጠር">
+    <meta name="theme-color" content="#336699">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>የግእዝ ዘመን - Geez Calendar</title>
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="geez_calendar.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .app-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
+        }
+
+        .app-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .app-header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .calendar-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        #geez-calendar-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .footer p {
+            margin: 5px 0;
+            opacity: 0.9;
+        }
+
+        .install-prompt {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .install-prompt button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+
+        .install-prompt button:hover {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .app-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .app-header p {
+                font-size: 1rem;
+            }
+
+            .calendar-container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="install-prompt" id="installPrompt">
+        <p>📱 Install this app on your device for offline access!</p>
+        <button id="installButton">Install App</button>
+        <button id="dismissButton">Maybe Later</button>
+    </div>
+
+    <div class="app-header">
+        <h1>የግእዝ ዘመን አቆጣጠር</h1>
+        <p>Eritrean Orthodox Geez Calendar</p>
+    </div>
+
+    <div class="calendar-container">
+        <div id="geez-calendar-container"></div>
+    </div>
+
+    <div class="footer">
+        <p>ናይ ቤተክርስቲያን ተዋህዶ ዘመን</p>
+        <p>Eritrean Orthodox Calendar - Works Offline</p>
+        <p>&copy; 2025 Debre Iyesus</p>
+    </div>
+
+    <script src="geez_calendar.js"></script>
+    <script>
+        // Initialize calendar with today's date
+        var today = new Date();
+        displayCalendar(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+        // PWA Install Prompt
+        let deferredPrompt;
+        const installPrompt = document.getElementById('installPrompt');
+        const installButton = document.getElementById('installButton');
+        const dismissButton = document.getElementById('dismissButton');
+
+        // Detect browser
+        const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                            window.navigator.standalone === true;
+
+        console.log('Browser Detection:', {
+            isFirefox: isFirefox,
+            isStandalone: isStandalone,
+            userAgent: navigator.userAgent
+        });
+
+        // Show install prompt for Firefox users if not already installed
+        if (isFirefox && !isStandalone) {
+            console.log('Firefox detected');
+            // Firefox desktop has limited PWA support, show info after delay
+            setTimeout(() => {
+                const promptText = installPrompt.querySelector('p');
+                if (promptText) {
+                    promptText.innerHTML = '📱 This app works offline! Bookmark it for easy access.<br><small style="font-size:0.9em;">Note: Firefox desktop has limited PWA install support. Use Chrome/Edge for full install experience.</small>';
+                    installPrompt.style.display = 'block';
+                    console.log('Firefox info displayed');
+                }
+            }, 2000);
+        } else {
+            console.log('Not showing Firefox prompt:', { isFirefox, isStandalone });
+        }
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installPrompt.querySelector('p').textContent = '📱 Install this app on your device for offline access!';
+            installPrompt.style.display = 'block';
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                console.log(`User response to install prompt: ${outcome}`);
+                deferredPrompt = null;
+                installPrompt.style.display = 'none';
+            } else if (isFirefox) {
+                // Show Firefox limitations
+                alert('Firefox Desktop PWA Support:\n\n' +
+                      'Firefox desktop has limited PWA install support.\n\n' +
+                      'Good news:\n' +
+                      '✅ The app still works offline in Firefox!\n' +
+                      '✅ Service Worker is active\n' +
+                      '✅ All features work perfectly\n\n' +
+                      'For full install experience:\n' +
+                      '• Use Chrome or Edge on desktop\n' +
+                      '• Or use Firefox on Android\n\n' +
+                      'You can bookmark this page for quick access!');
+            }
+        });
+
+        dismissButton.addEventListener('click', () => {
+            installPrompt.style.display = 'none';
+        });
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

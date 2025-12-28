@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+package-lock.json
+
+# Development files
+convert-icons.js
+convert-icons-jimp.js
+convert-logo-to-icons.html
+generate-icons.html
+
+# System files
+.DS_Store
+Thumbs.db
+*.log
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
