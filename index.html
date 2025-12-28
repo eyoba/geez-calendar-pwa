@@ -214,16 +214,39 @@
             installPrompt.style.display = 'none';
         });
 
-        // Register Service Worker
+        // Register Service Worker with auto-update
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('service-worker.js')
                     .then((registration) => {
                         console.log('Service Worker registered successfully:', registration.scope);
+
+                        // Check for updates every time the page loads
+                        registration.update();
+
+                        // Listen for new service worker updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('New Service Worker found, updating...');
+
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'activated') {
+                                    console.log('New Service Worker activated, reloading page...');
+                                    // Reload the page to show new content
+                                    window.location.reload();
+                                }
+                            });
+                        });
                     })
                     .catch((error) => {
                         console.log('Service Worker registration failed:', error);
                     });
+
+                // Handle controller change (when new SW takes over)
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('Service Worker controller changed, reloading...');
+                    window.location.reload();
+                });
             });
         }
     </script>
