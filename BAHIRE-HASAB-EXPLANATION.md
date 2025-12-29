@@ -101,10 +101,10 @@ Some feasts have **fixed dates** every year:
 
 | Feast | Date | Gregorian Equivalent |
 |-------|------|---------------------|
+| **ቅዱስ ዩሐንስ** (St. John/New Year) | 1 Meskerem | Sept 11 |
 | **መስቀል** (Meskel) | 17 Meskerem | Sept 27 |
 | **ልደት** (Christmas) | 29 Tahsas | Jan 7 |
 | **ጥምቀት** (Timket/Epiphany) | 11 Tiri | Jan 19 |
-| **ቅዱስ ዩሐንስ** (St. John) | 30 Nehassie | Sept 11 |
 
 ## Full 2019 Example Calculation
 
