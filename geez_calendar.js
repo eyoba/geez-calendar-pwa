@@ -49,9 +49,10 @@ var AMETE_FEDA = new Number(5500);
 		"ጾመ ሓዋርያት": { days: "10-40", description: "10-40 መዓልታት (ተለዋዋጢ)" },
 		"ጾመ ድህነት": { days: 15, description: "15 መዓልታት" },
 		"ጾመ ፍልሰታ": { days: 16, description: "16 መዓልታት" },
-		// Fixed-date fast: always Hidar 15 through Ledet, so the length follows
-		// the year rather than being stored as a number
-		"ጾመ ነብያት": { days: null, description: "ካብ ሕዳር ፲፭ ክሳብ ልደት" }
+		// Fixed-date fast: Hidar 15 until the day before Ledet. The span is 44
+		// days most years and 43 in the year after an Ethiopian leap year, so it
+		// is named by its endpoints rather than stored as a number
+		"ጾመ ነብያት": { days: null, description: "ካብ ሕዳር ፲፭ ክሳብ ቅድሚ ልደት" }
 	};
 
 	TODAY = "ሎሚ";
@@ -380,6 +381,17 @@ var AMETE_FEDA = new Number(5500);
 	
 	function tsomeNebiyatWor ( year ) {
 		return 2;	
+	}
+	
+	// The fast closes the day before Ledet, not on Ledet itself - the feast is
+	// when it is broken. genaKen already carries the leap-year correction that
+	// pins Ledet to 7 January, so one day back from it is always 6 January.
+	function tsomeNebiyatEndKen ( year ) {
+		return genaKen( year ) - 1;	
+	}
+	
+	function tsomeNebiyatEndWor ( year ) {
+		return genaWor( year );	
 	}
 	
 	
@@ -798,14 +810,16 @@ var AMETE_FEDA = new Number(5500);
 						 desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - መስቀል<br>";
 					}
 					else if ( month == genaWor( year ) && serkeMealt == genaKen( year ) ){
-						// Ledet is also the day Tsome Nebiyat closes, so the cell carries both
-						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ልደት / ጾመ ነብያት ይውዳእ\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ልደት\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ልደት<br>";
-						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይውዳእ<br>";
 					}
 					else if ( month == tsomeNebiyatWor( year ) && serkeMealt == tsomeNebiyatKen( year ) ){
 						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ጾመ ነብያት ይጀምር\" href=\"/ጾመ-ነብያት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይጀምር (" + FASTING_DURATIONS["ጾመ ነብያት"].description + ")<br>";
+					}
+					else if ( month == tsomeNebiyatEndWor( year ) && serkeMealt == tsomeNebiyatEndKen( year ) ){
+						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ጾመ ነብያት ይውዳእ\" href=\"/ጾመ-ነብያት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይውዳእ (" + FASTING_DURATIONS["ጾመ ነብያት"].description + ")<br>";
 					}
 					else if ( month == timketWor( year ) && serkeMealt == timketKen( year ) ){
 						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ጥምቀት\" href=\"/ጥምቀት/\">" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
@@ -1033,16 +1047,19 @@ var AMETE_FEDA = new Number(5500);
 						desc= desc + serkeMealt + " - መስቀል<br>";
 					}
 					else if ( month == genaWor( year ) && serkeMealt == genaKen( year ) ){
-						// Ledet is also the day Tsome Nebiyat closes, so the cell carries both
-						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ልደት / ጾመ ነብያት ይውዳእ\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ልደት\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
 						document.getElementById("td" + week +"_"+ dayIndex).bgColor ="#FFFF00";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ልደት<br>";
-						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይውዳእ<br>";
 					}
 					else if ( month == tsomeNebiyatWor( year ) && serkeMealt == tsomeNebiyatKen( year ) ){
 						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ጾመ ነብያት ይጀምር\" href=\"/ጾመ-ነብያት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
 						document.getElementById("td" + week +"_"+ dayIndex).bgColor ="#FFFF00";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይጀምር (" + FASTING_DURATIONS["ጾመ ነብያት"].description + ")<br>";
+					}
+					else if ( month == tsomeNebiyatEndWor( year ) && serkeMealt == tsomeNebiyatEndKen( year ) ){
+						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ጾመ ነብያት ይውዳእ\" href=\"/ጾመ-ነብያት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						document.getElementById("td" + week +"_"+ dayIndex).bgColor ="#FFFF00";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይውዳእ (" + FASTING_DURATIONS["ጾመ ነብያት"].description + ")<br>";
 					}
 					else if ( month == timketWor( year ) && serkeMealt == timketKen( year ) ){
 						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ጥምቀት\" href=\"/ጥምቀት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
