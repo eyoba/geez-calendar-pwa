@@ -11,11 +11,11 @@ var AMETE_FEDA = new Number(5500);
 	WOR = [ "መስከረም", "ጥቅምቲ", "ሕዳር", "ታሕሳስ", "ጥሪ", "ለካቲት", "መጋቢት", "ሚያዚያ", "ግንቦት", "ሰነ", "ሓምለ", "ነሓሰ", "ጳግሜን" ];
 	BEALAT_ASWAMAT_Eng = [ "Kidus Yohannes", "Meskel", "Lidet", "Timket", "Tsome Nenewe", "Abiy Tsome", "Debre Zeit",
 					  "Hosaena", "Seklet", "Tinsae", "Rekebe Kahinat", "Erget","Peraklitos","Tsome Hawariat", "Tsome Dihnet",
-					  "Tsome Filseta", "Debre Tabor", "Ye Emebetachin Erget"];
+					  "Tsome Filseta", "Debre Tabor", "Ye Emebetachin Erget", "Tsome Nebiyat"];
 	
 	BEALAT_ASWAMAT = ["ቅዱስ ዩሐንስ", "መስቀል", "ልደት", "ጥምቀት", "ጾመ ነነዌ", "ዓብይ ጾም", "ደብረ ዘይት",
 					  "ሆሳዕና", "ስቅለት", "ትንሳኤ", "ርክበ ካህናት", "ዕርገት","ጴራቅሊጦስ","ጾመ ሓዋርያት", "ጾመ ድህነት",
-					  "ጾመ ፍልሰታ", "ደብረ ታቦር", "ናይ ቅ.ድ ዕርገት"];
+					  "ጾመ ፍልሰታ", "ደብረ ታቦር", "ናይ ቅ.ድ ዕርገት", "ጾመ ነብያት"];
 
 	// Fasting durations in days
 	var FASTING_DURATIONS = {
@@ -23,7 +23,10 @@ var AMETE_FEDA = new Number(5500);
 		"ዓብይ ጾም": { days: 55, description: "55 መዓልታት" },
 		"ጾመ ሓዋርያት": { days: "10-40", description: "10-40 መዓልታት (ተለዋዋጢ)" },
 		"ጾመ ድህነት": { days: 15, description: "15 መዓልታት" },
-		"ጾመ ፍልሰታ": { days: 16, description: "16 መዓልታት" }
+		"ጾመ ፍልሰታ": { days: 16, description: "16 መዓልታት" },
+		// Fixed-date fast: always Hidar 15 through Ledet, so the length follows
+		// the year rather than being stored as a number
+		"ጾመ ነብያት": { days: null, description: "ካብ ሕዳር ፲፭ ክሳብ ልደት" }
 	};
 
 	TODAY = "ሎሚ";
@@ -342,6 +345,18 @@ var AMETE_FEDA = new Number(5500);
 	function genaWor ( year ) {
 		return 3;	
 	}
+
+	// Tsome Nebiyat, the Fast of the Prophets. Unlike the fasts above it does not
+	// move with Easter - it always opens on Hidar 15 and closes on Ledet, so the
+	// end reuses genaKen/genaWor and lands on 7 January every year.
+	function tsomeNebiyatKen ( year ) {
+		return 15;	
+	}
+	
+	function tsomeNebiyatWor ( year ) {
+		return 2;	
+	}
+	
 	
 	function timketKen ( year ) {
 		return 11;	
@@ -636,7 +651,7 @@ var AMETE_FEDA = new Number(5500);
 		//Bealat zerzer
       	strCalTable = strCalTable + "<select name=\"lstBealat\" class=\"aClassSelect\" size=\"1\" id=\"lstBealat\" onChange=\"changeCalendarByBeal (frmEthiopianCalendar.lstYear.value, frmEthiopianCalendar.lstBealat.value)\">";
 		strCalTable = strCalTable + "<option value=\"_0\" selected> በዓላት ወኣጽዋማት </option>";	
-		for (var bealCount = 0; bealCount < 18; bealCount++ )
+		for (var bealCount = 0; bealCount < BEALAT_ASWAMAT.length; bealCount++ )
 			strCalTable = strCalTable + "<option value=\""+bealCount+"\">"+ BEALAT_ASWAMAT[bealCount] +"</option>";
 		strCalTable = strCalTable + "</select></td>";
 		
@@ -758,8 +773,14 @@ var AMETE_FEDA = new Number(5500);
 						 desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - መስቀል<br>";
 					}
 					else if ( month == genaWor( year ) && serkeMealt == genaKen( year ) ){
-						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ልደት\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						// Ledet is also the day Tsome Nebiyat closes, so the cell carries both
+						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ልደት / ጾመ ነብያት ይውዳእ\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ልደት<br>";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይውዳእ<br>";
+					}
+					else if ( month == tsomeNebiyatWor( year ) && serkeMealt == tsomeNebiyatKen( year ) ){
+						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ጾመ ነብያት ይጀምር\" href=\"/ጾመ-ነብያት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይጀምር (" + FASTING_DURATIONS["ጾመ ነብያት"].description + ")<br>";
 					}
 					else if ( month == timketWor( year ) && serkeMealt == timketKen( year ) ){
 						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title = \"ጥምቀት\" href=\"/ጥምቀት/\">" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
@@ -897,6 +918,8 @@ var AMETE_FEDA = new Number(5500);
 			txtMonth = debreTaborWor( year ); // Debre Tabor 
 		else if (txtMonth == "17" )
 			txtMonth = filsetaWor( year ); // Filseta
+		else if (txtMonth == "18" )
+			txtMonth = tsomeNebiyatWor( year ); // Tsome Nebiyat Megbia
 		else
 			txtMonth = frmEthiopianCalendar.lstWor.value;
 		
@@ -1021,9 +1044,16 @@ var AMETE_FEDA = new Number(5500);
 						desc= desc + serkeMealt + " - መስቀል<br>";
 					}
 					else if ( month == genaWor( year ) && serkeMealt == genaKen( year ) ){
-						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ልደት\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						// Ledet is also the day Tsome Nebiyat closes, so the cell carries both
+						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ልደት / ጾመ ነብያት ይውዳእ\" href=\"/ልደት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
 						document.getElementById("td" + week +"_"+ dayIndex).bgColor ="#FFFF00";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ልደት<br>";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይውዳእ<br>";
+					}
+					else if ( month == tsomeNebiyatWor( year ) && serkeMealt == tsomeNebiyatKen( year ) ){
+						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ጾመ ነብያት ይጀምር\" href=\"/ጾመ-ነብያት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
+						document.getElementById("td" + week +"_"+ dayIndex).bgColor ="#FFFF00";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነብያት ይጀምር (" + FASTING_DURATIONS["ጾመ ነብያት"].description + ")<br>";
 					}
 					else if ( month == timketWor( year ) && serkeMealt == timketKen( year ) ){
 						document.getElementById("td" + week +"_"+ dayIndex).innerHTML ="<a title = \"ጥምቀት\" href=\"/ጥምቀት/\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
