@@ -9,13 +9,38 @@ var AMETE_FEDA = new Number(5500);
 	ELET_TEWSAK = [ 6, 5, 4, 3, 2, 8, 7 ]
 	WOR_Eng = [ "Meskerem", "Tikimti", "Hidar", "Tahisas", "Tiri", "Yekatit", "Megabit", "Miyaziya", "Ginbot", "Sene", "Hamle", "Nehassie", "Pagumen" ];
 	WOR = [ "መስከረም", "ጥቅምቲ", "ሕዳር", "ታሕሳስ", "ጥሪ", "ለካቲት", "መጋቢት", "ሚያዚያ", "ግንቦት", "ሰነ", "ሓምለ", "ነሓሰ", "ጳግሜን" ];
-	BEALAT_ASWAMAT_Eng = [ "Kidus Yohannes", "Meskel", "Lidet", "Timket", "Tsome Nenewe", "Abiy Tsome", "Debre Zeit",
+	BEALAT_ASWAMAT_Eng = [ "Kidus Yohannes", "Meskel", "Tsome Nebiyat", "Lidet", "Timket", "Tsome Nenewe", "Abiy Tsome", "Debre Zeit",
 					  "Hosaena", "Seklet", "Tinsae", "Rekebe Kahinat", "Erget","Peraklitos","Tsome Hawariat", "Tsome Dihnet",
-					  "Tsome Filseta", "Debre Tabor", "Ye Emebetachin Erget", "Tsome Nebiyat"];
+					  "Tsome Filseta", "Debre Tabor", "Ye Emebetachin Erget"];
 	
-	BEALAT_ASWAMAT = ["ቅዱስ ዩሐንስ", "መስቀል", "ልደት", "ጥምቀት", "ጾመ ነነዌ", "ዓብይ ጾም", "ደብረ ዘይት",
+	BEALAT_ASWAMAT = ["ቅዱስ ዩሐንስ", "መስቀል", "ጾመ ነብያት", "ልደት", "ጥምቀት", "ጾመ ነነዌ", "ዓብይ ጾም", "ደብረ ዘይት",
 					  "ሆሳዕና", "ስቅለት", "ትንሳኤ", "ርክበ ካህናት", "ዕርገት","ጴራቅሊጦስ","ጾመ ሓዋርያት", "ጾመ ድህነት",
-					  "ጾመ ፍልሰታ", "ደብረ ታቦር", "ናይ ቅ.ድ ዕርገት", "ጾመ ነብያት"];
+					  "ጾመ ፍልሰታ", "ደብረ ታቦር", "ናይ ቅ.ድ ዕርገት"];
+
+	// Which Ethiopian month each entry above falls in. The index matches
+	// BEALAT_ASWAMAT exactly, so adding or moving a feast only has to be done
+	// once - the dropdown and this lookup cannot drift apart.
+	BEALAT_WOR = [
+		function( year ){ return 0; },                       // ቅዱስ ዩሐንስ
+		function( year ){ return 0; },                       // መስቀል
+		function( year ){ return tsomeNebiyatWor( year ); }, // ጾመ ነብያት
+		function( year ){ return 3; },                       // ልደት
+		function( year ){ return 4; },                       // ጥምቀት
+		function( year ){ return neneweWor( year ); },
+		function( year ){ return abiyTsomeWor( year ); },
+		function( year ){ return debreZeitWor( year ); },
+		function( year ){ return hosaenaWor( year ); },
+		function( year ){ return sikletWor( year ); },
+		function( year ){ return tinsaeWor( year ); },
+		function( year ){ return rekebeKahinatWor( year ); },
+		function( year ){ return ergetWor( year ); },
+		function( year ){ return peraklitosWor( year ); },
+		function( year ){ return tsomeHawariatWor( year ); },
+		function( year ){ return tsomeDihenetWor( year ); },
+		function( year ){ return tsomeFilsetaWor( year ); },
+		function( year ){ return debreTaborWor( year ); },
+		function( year ){ return filsetaWor( year ); }
+	];
 
 	// Fasting durations in days
 	var FASTING_DURATIONS = {
@@ -882,44 +907,8 @@ var AMETE_FEDA = new Number(5500);
 	function changeCalendarByBeal (txtYear, txtMonth){
 		var year = new Number (txtYear);
 		
-		if (txtMonth == "0" )
-			txtMonth = 0; // Kidus Yohannes 
-		else if (txtMonth == "1" )
-			txtMonth = 0; // Meskel 
-		else if (txtMonth == "2" )
-			txtMonth = 3; // Ye Chiristos Lidet 
-		else if (txtMonth == "3" )
-			txtMonth = 4; // Timket 
-		else if (txtMonth == "4" )
-			txtMonth = neneweWor( year ); // Nenewe Tsome Megbia 
-		else if (txtMonth == "5" )
-			txtMonth = abiyTsomeWor( year ); // Abiy Tsome Megbia 
-		else if (txtMonth == "6" )
-			txtMonth = debreZeitWor( year ); // Debre Zeit 
-		else if (txtMonth == "7" )
-			txtMonth = hosaenaWor( year ); // Hosaena 
-		else if (txtMonth == "8" )
-			txtMonth = sikletWor( year ); // Sikelet 
-		else if (txtMonth == "9" )
-			txtMonth = tinsaeWor( year ); // Tinsae
-		else if (txtMonth == "10" )
-			txtMonth = rekebeKahinatWor( year ); // Rekebe Kahinat 
-		else if (txtMonth == "11" )
-			txtMonth = ergetWor( year ); // Erget 
-		else if (txtMonth == "12" )
-			txtMonth = peraklitosWor( year ); // Peraklitos 
-		else if (txtMonth == "13" )
-			txtMonth = tsomeHawariatWor( year ); // Ye Hawariat Tsome Megbia 
-		else if (txtMonth == "14" )
-			txtMonth = tsomeDihenetWor( year ); // Tsome Dihenet Megemeria
-		else if (txtMonth == "15" )
-			txtMonth = tsomeFilsetaWor( year ); // Tsome Filseta Megbia
-		else if (txtMonth == "16" )
-			txtMonth = debreTaborWor( year ); // Debre Tabor 
-		else if (txtMonth == "17" )
-			txtMonth = filsetaWor( year ); // Filseta
-		else if (txtMonth == "18" )
-			txtMonth = tsomeNebiyatWor( year ); // Tsome Nebiyat Megbia
+		if ( BEALAT_WOR[ txtMonth ] )
+			txtMonth = BEALAT_WOR[ txtMonth ]( year );
 		else
 			txtMonth = frmEthiopianCalendar.lstWor.value;
 		

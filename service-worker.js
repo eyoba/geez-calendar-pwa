@@ -1,4 +1,4 @@
-const CACHE_NAME = 'geez-calendar-v10';
+const CACHE_NAME = 'geez-calendar-v11';
 const urlsToCache = [
   './',
   './index.html',
