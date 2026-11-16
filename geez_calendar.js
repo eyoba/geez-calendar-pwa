@@ -148,7 +148,11 @@ var AMETE_FEDA = new Number(5500);
 	}
 	
 	function wenber ( year ) {
-		return ( medeb( year ) - 1 );
+		// Medeb is ameteAlem mod 19, so once every nineteen years it is 0 and
+		// medeb - 1 gave -1. JavaScript's % keeps the sign, so abekte came out
+		// negative and threw that whole year a week off. Wenber is really
+		// (ameteAlem - 1) mod 19, which is 18 in those years.
+		return ( medeb( year ) + NIUS_KEMER - 1 ) % NIUS_KEMER;
 	}
 	
 	function abekte ( year ) {
