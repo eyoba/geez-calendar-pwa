@@ -48,7 +48,7 @@ var AMETE_FEDA = new Number(5500);
 		"ዓብይ ጾም": { days: 55, description: "55 መዓልታት" },
 		"ጾመ ሓዋርያት": { days: "10-40", description: "10-40 መዓልታት (ተለዋዋጢ)" },
 		"ጾመ ድህነት": { days: 15, description: "15 መዓልታት" },
-		"ጾመ ፍልሰታ": { days: 16, description: "16 መዓልታት" },
+		"ጾመ ፍልሰታ": { days: 15, description: "15 መዓልታት" },
 		// Fixed-date fast: Hidar 15 until the day before Ledet. The span is 44
 		// days most years and 43 in the year after an Ethiopian leap year, so it
 		// is named by its endpoints rather than stored as a number
@@ -392,6 +392,46 @@ var AMETE_FEDA = new Number(5500);
 	
 	function tsomeNebiyatEndWor ( year ) {
 		return genaWor( year );	
+	}
+	
+	// Step a number of days forward or back through the Ethiopian year. Every
+	// month is 30 days except Pagume, which is 5 or 6. Returns [wor, ken].
+	// Needed because a fast's last day can land in a different month than the
+	// feast it is counted from.
+	function ethShift ( year, wor, ken, step ) {
+		var m = wor, d = ken + step;
+		var lenOf = function ( mi ) { return mi == 12 ? ( isEthLeapYear( year ) ? 6 : 5 ) : 30; };
+		while ( d < 1 ) { m = ( m + 12 ) % 13; d += lenOf( m ); }
+		while ( d > lenOf( m ) ) { d -= lenOf( m ); m = ( m + 1 ) % 13; }
+		return [ m, d ];
+	}
+	
+	// Abiy Tsome ends the day before Tinsae - 55 days, which is the length the
+	// calendar already recorded for it.
+	function abiyTsomeEndKen ( year ) {
+		return ethShift( year, tinsaeWor( year ), tinsaeKen( year ), -1 )[1];	
+	}
+	
+	function abiyTsomeEndWor ( year ) {
+		return ethShift( year, tinsaeWor( year ), tinsaeKen( year ), -1 )[0];	
+	}
+	
+	// Tsome Filseta ends the day before Nehase 16.
+	function tsomeFilsetaEndKen ( year ) {
+		return ethShift( year, filsetaWor( year ), filsetaKen( year ), -1 )[1];	
+	}
+	
+	function tsomeFilsetaEndWor ( year ) {
+		return ethShift( year, filsetaWor( year ), filsetaKen( year ), -1 )[0];	
+	}
+	
+	// Nenewe has no feast to count back from - it is three days from its start.
+	function neneweEndKen ( year ) {
+		return ethShift( year, neneweWor( year ), neneweKen( year ), 2 )[1];	
+	}
+	
+	function neneweEndWor ( year ) {
+		return ethShift( year, neneweWor( year ), neneweKen( year ), 2 )[0];	
 	}
 	
 	
@@ -757,6 +797,34 @@ var AMETE_FEDA = new Number(5500);
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነነዌ (" + FASTING_DURATIONS["ጾመ ነነዌ"].description + ")<br>";
 					}
 
+					// ጾመ ነነዌ ends here. It can land on a national holiday, so it merges
+					// into the cell instead of being an else-if the holiday check would skip.
+					if ( month == neneweEndWor( year ) && serkeMealt == neneweEndKen( year ) ){
+						hasEvent = true;
+						if (eventTitle) eventTitle = eventTitle + " / ጾመ ነነዌ ይውዳእ";
+						else eventTitle = "ጾመ ነነዌ ይውዳእ";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነነዌ ይውዳእ<br>";
+					}
+
+					// ዓብይ ጾም ends here. It can land on a national holiday, so it merges
+					// into the cell instead of being an else-if the holiday check would skip.
+					if ( month == abiyTsomeEndWor( year ) && serkeMealt == abiyTsomeEndKen( year ) ){
+						hasEvent = true;
+						if (eventTitle) eventTitle = eventTitle + " / ዓብይ ጾም ይውዳእ";
+						else eventTitle = "ዓብይ ጾም ይውዳእ";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ዓብይ ጾም ይውዳእ<br>";
+					}
+
+					// ጾመ ፍልሰታ ends here. It can land on a national holiday, so it merges
+					// into the cell instead of being an else-if the holiday check would skip.
+					if ( month == tsomeFilsetaEndWor( year ) && serkeMealt == tsomeFilsetaEndKen( year ) ){
+						hasEvent = true;
+						if (eventTitle) eventTitle = eventTitle + " / ጾመ ፍልሰታ ይውዳእ";
+						else eventTitle = "ጾመ ፍልሰታ ይውዳእ";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ፍልሰታ ይውዳእ<br>";
+					}
+
+
 					// Display the cell if there was an event
 					if (hasEvent){
 						strCalTable = strCalTable + "bgColor=\"#FFFF00\" > <a title=\"" + eventTitle + "\" href=\"#\" >" + "<font size=\"3\">" + geezNum[ serkeMealt ] + "</font>" + "/" + "<font size=\"2\">" + ethDayToGregDay ( year, month, serkeMealt ) + "</font>" + "</a>";
@@ -980,6 +1048,34 @@ var AMETE_FEDA = new Number(5500);
 						else eventTitle = "ጾመ ነነዌ";
 						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነነዌ (" + FASTING_DURATIONS["ጾመ ነነዌ"].description + ")<br>";
 					}
+
+					// ጾመ ነነዌ ends here. It can land on a national holiday, so it merges
+					// into the cell instead of being an else-if the holiday check would skip.
+					if ( month == neneweEndWor( year ) && serkeMealt == neneweEndKen( year ) ){
+						hasEvent = true;
+						if (eventTitle) eventTitle = eventTitle + " / ጾመ ነነዌ ይውዳእ";
+						else eventTitle = "ጾመ ነነዌ ይውዳእ";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ነነዌ ይውዳእ<br>";
+					}
+
+					// ዓብይ ጾም ends here. It can land on a national holiday, so it merges
+					// into the cell instead of being an else-if the holiday check would skip.
+					if ( month == abiyTsomeEndWor( year ) && serkeMealt == abiyTsomeEndKen( year ) ){
+						hasEvent = true;
+						if (eventTitle) eventTitle = eventTitle + " / ዓብይ ጾም ይውዳእ";
+						else eventTitle = "ዓብይ ጾም ይውዳእ";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ዓብይ ጾም ይውዳእ<br>";
+					}
+
+					// ጾመ ፍልሰታ ends here. It can land on a national holiday, so it merges
+					// into the cell instead of being an else-if the holiday check would skip.
+					if ( month == tsomeFilsetaEndWor( year ) && serkeMealt == tsomeFilsetaEndKen( year ) ){
+						hasEvent = true;
+						if (eventTitle) eventTitle = eventTitle + " / ጾመ ፍልሰታ ይውዳእ";
+						else eventTitle = "ጾመ ፍልሰታ ይውዳእ";
+						desc= desc + geezNum[serkeMealt] + "/" + ethDayToGregDay(year, month, serkeMealt) + " - ጾመ ፍልሰታ ይውዳእ<br>";
+					}
+
 
 					// Display the cell if there was an event
 					if (hasEvent){
